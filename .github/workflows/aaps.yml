@@ -1,21 +1,42 @@
-name: Build AndroidAPS 3.4.0.0 APKs
+name: Build AndroidAPS
 
 on:
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch: # Manual trigger
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Print Availability Secrets
+        run: |
+          echo "Available secrets:"
+          echo "KEY_BASE64: ${{ secrets.KEY_BASE64 != '' && '✓' || '✗' }}"
+          echo "SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS != '' && '✓' || '✗' }}"
+          echo "SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD != '' && '✓' || '✗' }}"
+          echo "SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD != '' && '✓' || '✗' }}"
+
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.KEY_BASE64 }}" > $GITHUB_WORKSPACE/androidaps.keystore.base64
+          base64 -d $GITHUB_WORKSPACE/androidaps.keystore.base64 > $GITHUB_WORKSPACE/androidaps.keystore
+          rm $GITHUB_WORKSPACE/androidaps.keystore.base64
+          echo "Keystore location: $GITHUB_WORKSPACE/androidaps.keystore"
+          ls -l $GITHUB_WORKSPACE/androidaps.keystore
+
+      - name: Keystore validation
+        run: |
+          keytool -list -v -keystore $GITHUB_WORKSPACE/androidaps.keystore -storepass ${{ secrets.SIGNING_STORE_PASSWORD }} -alias ${{ secrets.SIGNING_KEY_ALIAS }} > $GITHUB_WORKSPACE/keystore.txt
+          cat $GITHUB_WORKSPACE/keystore.txt
+
       - name: Checkout this repo (for workflow files)
         uses: actions/checkout@v4
 
       - name: Set up JDK 21 (no Gradle cache – project cloned later)
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
-          distribution: 'temurin'
+          java-version: "21"
+          distribution: "temurin"
           # No cache here
 
       - name: Clone original AndroidAPS repo at tag 3.4.0.0
@@ -24,6 +45,7 @@ jobs:
           cd source
           git fetch --tags --force
           git checkout 3.4.0.0
+
       - name: Grant execute permission for gradlew
         working-directory: source
         run: chmod +x ./gradlew
@@ -32,25 +54,15 @@ jobs:
         working-directory: source
         run: |
           yes | ./gradlew --no-daemon sdk:acceptLicenses || true
-      - name: Build Smartphone (Full) Debug APK
+
+      - name: Build Smartphone (Full) Release APK
         working-directory: source
         run: ./gradlew assembleFullRelease --stacktrace --info
 
-      - name: Build Smartwatch (Wear) Debug APK
+      - name: Build Smartwatch (Wear) Release APK
         working-directory: source
         run: ./gradlew :wear:assembleRelease --stacktrace --info
 
-      - name: Build Client (Aapsclient) Debug APK
+      - name: Build Client (Aapsclient) Release APK
         working-directory: source
         run: ./gradlew assembleAapsclientRelease --stacktrace --info
-
-      - name: Upload Debug APKs as Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: aaps-3.4.0.0-debug-apks
-          path: |
-            source/app/build/outputs/apk/full/debug/*.apk
-            source/wear/build/outputs/apk/debug/*.apk
-            source/app/build/outputs/apk/aapsclient/debug/*.apk
-          if-no-files-found: error
-          retention-days: 14

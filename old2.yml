@@ -22,13 +22,6 @@
 #     runs-on: ubuntu-latest
 
 #     steps:
-#       - name: Signing on
-#         run: |
-#           curl -X POST "${{ secrets.API_URL_SIGNING_ON }}" \
-#             -H "Content-Type: application/json" \
-#             -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
-#             -d '{"user_id":"${{github.event.inputs.user_id}}", "run_id":"${{ github.run_id }}"}'
-
 #       - name: Print Availability Secrets
 #         run: |
 #           echo "Available secrets:"
@@ -76,39 +69,14 @@
 #         run: |
 #           yes | ./gradlew --no-daemon sdk:acceptLicenses || true
 
-#       - name: Build Smartphone (Full) APK
+#       - name: Build Smartphone (Full) Release APK
 #         working-directory: source
-#         run: ./gradlew assembleFullDebug --stacktrace --info
+#         run: ./gradlew assembleFullRelease --stacktrace --info
 
-#       - name: Build Smartwatch (Wear) APK
+#       - name: Build Smartwatch (Wear) Release APK
 #         working-directory: source
-#         run: ./gradlew :wear:assembleDebug --stacktrace --info
+#         run: ./gradlew :wear:assembleRelease --stacktrace --info
 
-#       - name: Build Client (Aapsclient) APK
+#       - name: Build Client (Aapsclient) Release APK
 #         working-directory: source
-#         run: ./gradlew assembleAapsclientDebug --stacktrace --info
-
-#       - name: Upload Debug APKs as Artifacts
-#         uses: actions/upload-artifact@v4
-#         with:
-#           name: aaps-3.4.0.0-debug-apks
-#           path: |
-#             source/app/build/outputs/apk/full/debug/*.apk
-#             source/wear/build/outputs/apk/debug/*.apk
-#             source/app/build/outputs/apk/aapsclient/debug/*.apk
-#           if-no-files-found: error
-#           retention-days: 1
-
-#       - name: Signing off
-#         run: |
-#           curl -X POST "${{ secrets.API_URL_SIGNING_OFF }}" \
-#             -H "Content-Type: application/json" \
-#             -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
-#             -d '{
-#               "user_id": "${{ github.event.inputs.user_id }}",
-#               "run_id": "${{ github.run_id }}",
-#               "download_url": {
-#                 "phone": "${{ steps.upload-artifact-phone.outputs.artifact-url }}",
-#                 "smartwatch": "${{ steps.upload-artifact-watch.outputs.artifact-url }}"
-#               }
-#             }'
+#         run: ./gradlew assembleAapsclientRelease --stacktrace --info
