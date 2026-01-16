@@ -1,7 +1,7 @@
 name: Build AndroidAPS 3.4.0.0 APKs
 
 on:
-  workflow_dispatch: # Manual trigger
+  workflow_dispatch:  # Manual trigger
 
 jobs:
   build:
@@ -14,8 +14,8 @@ jobs:
       - name: Set up JDK 21 (no Gradle cache – project cloned later)
         uses: actions/setup-java@v4
         with:
-          java-version: "21"
-          distribution: "temurin"
+          java-version: '21'
+          distribution: 'temurin'
           # No cache here
 
       - name: Clone original AndroidAPS repo at tag 3.4.0.0
@@ -24,7 +24,6 @@ jobs:
           cd source
           git fetch --tags --force
           git checkout 3.4.0.0
-
       - name: Grant execute permission for gradlew
         working-directory: source
         run: chmod +x ./gradlew
@@ -33,16 +32,15 @@ jobs:
         working-directory: source
         run: |
           yes | ./gradlew --no-daemon sdk:acceptLicenses || true
-
-      - name: Build Smartphone (Full) APK
+      - name: Build Smartphone (Full) Debug APK
         working-directory: source
         run: ./gradlew assembleFullDebug --stacktrace --info
 
-      - name: Build Smartwatch (Wear) APK
+      - name: Build Smartwatch (Wear) Debug APK
         working-directory: source
         run: ./gradlew :wear:assembleDebug --stacktrace --info
 
-      - name: Build Client (Aapsclient) APK
+      - name: Build Client (Aapsclient) Debug APK
         working-directory: source
         run: ./gradlew assembleAapsclientDebug --stacktrace --info
 
@@ -55,4 +53,4 @@ jobs:
             source/wear/build/outputs/apk/debug/*.apk
             source/app/build/outputs/apk/aapsclient/debug/*.apk
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 14
