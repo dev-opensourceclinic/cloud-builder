@@ -138,7 +138,7 @@ jobs:
           # When upgrading the JDK, please update this section accordingly as well.
           java-version: 21
           distribution: 'temurin'
-          cache: gradle
+          # cache: gradle
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
