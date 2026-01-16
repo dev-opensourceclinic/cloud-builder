@@ -57,12 +57,24 @@ jobs:
 
       - name: Build Smartphone (Full) Release APK
         working-directory: source
-        run: ./gradlew assembleFullRelease --stacktrace --info
+        run: ./gradlew assembleFullRelease --stacktrace --info \
+          -Pandroid.injected.signing.store.file="$GITHUB_WORKSPACE/androidaps.keystore" \
+          -Pandroid.injected.signing.store.password=${{ secrets.SIGNING_STORE_PASSWORD }} \
+          -Pandroid.injected.signing.key.alias=${{ secrets.SIGNING_KEY_ALIAS }} \
+          -Pandroid.injected.signing.key.password=${{ secrets.SIGNING_KEY_PASSWORD }}
 
       - name: Build Smartwatch (Wear) Release APK
         working-directory: source
-        run: ./gradlew :wear:assembleRelease --stacktrace --info
+        run: ./gradlew :wear:assembleRelease --stacktrace --info  \
+          -Pandroid.injected.signing.store.file="$GITHUB_WORKSPACE/androidaps.keystore" \
+          -Pandroid.injected.signing.store.password=${{ secrets.SIGNING_STORE_PASSWORD }} \
+          -Pandroid.injected.signing.key.alias=${{ secrets.SIGNING_KEY_ALIAS }} \
+          -Pandroid.injected.signing.key.password=${{ secrets.SIGNING_KEY_PASSWORD }}
 
       - name: Build Client (Aapsclient) Release APK
         working-directory: source
-        run: ./gradlew assembleAapsclientRelease --stacktrace --info
+        run: ./gradlew assembleAapsclientRelease --stacktrace --info  \
+          -Pandroid.injected.signing.store.file="$GITHUB_WORKSPACE/androidaps.keystore" \
+          -Pandroid.injected.signing.store.password=${{ secrets.SIGNING_STORE_PASSWORD }} \
+          -Pandroid.injected.signing.key.alias=${{ secrets.SIGNING_KEY_ALIAS }} \
+          -Pandroid.injected.signing.key.password=${{ secrets.SIGNING_KEY_PASSWORD }}
