@@ -34,15 +34,15 @@ jobs:
           yes | ./gradlew --no-daemon sdk:acceptLicenses || true
       - name: Build Smartphone (Full) Debug APK
         working-directory: source
-        run: ./gradlew assembleFullDebug --stacktrace --info
+        run: ./gradlew assembleFullRelease --stacktrace --info
 
       - name: Build Smartwatch (Wear) Debug APK
         working-directory: source
-        run: ./gradlew :wear:assembleDebug --stacktrace --info
+        run: ./gradlew :wear:assembleRelease --stacktrace --info
 
       - name: Build Client (Aapsclient) Debug APK
         working-directory: source
-        run: ./gradlew assembleAapsclientDebug --stacktrace --info
+        run: ./gradlew assembleAapsclientRelease --stacktrace --info
 
       - name: Upload Debug APKs as Artifacts
         uses: actions/upload-artifact@v4
